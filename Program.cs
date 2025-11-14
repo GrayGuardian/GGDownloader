@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 internal class Program
 {
-    public static DownloadTask downloadTask;
     static void Main(string[] args)
     {
         DownloadQueue.Default.onError += (obj, message) => {
@@ -38,28 +37,15 @@ internal class Program
         {
             Console.WriteLine($"下载线程{index}更新任务");
         };
-        TTT();
-        Console.ReadLine();
-        downloadTask.Play();
-        //DownloadQueue.Default.Play();
+        AsyncMain();
         Console.ReadLine();
     }
 
-    static async Task TTT()
+    static async Task AsyncMain()
     {
-
         DownloadQueue.Default.Run();
         Console.WriteLine($"生成{DownloadQueue.Default.threadCount}个线程进行下载");
-        //DownloadQueue.Default.AddDownloadTask("Game.7z", "http://127.0.0.1:8880/Game.7z", Path.Combine(AppContext.BaseDirectory, "Test"));
-        //return;
-        downloadTask = await DownloadQueue.Default.AddDownloadTask("jdk-25_windows-x64_bin.zip", "https://download.oracle.com/java/25/latest/jdk-25_windows-x64_bin.zip", Path.Combine(AppContext.BaseDirectory, "Test"));
-        //downloadTask.Pause();
-        //await Task.Delay(1000);
+        DownloadQueue.Default.AddDownloadTask("jdk-25_windows-x64_bin.zip", "https://download.oracle.com/java/25/latest/jdk-25_windows-x64_bin.zip", Path.Combine(AppContext.BaseDirectory, "Test"));
         DownloadQueue.Default.AddDownloadTask("jdk-21_windows-x64_bin.zip", "https://download.oracle.com/java/21/latest/jdk-21_windows-x64_bin.zip", Path.Combine(AppContext.BaseDirectory, "Test"));
-
-        await Task.Delay(5000);
-        downloadTask.Pause();
-        //DownloadQueue.Default.Pause();
-
     }
 }
