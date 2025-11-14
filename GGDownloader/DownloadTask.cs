@@ -359,24 +359,30 @@ namespace GGDownloader
                 SetState(EDownloadState.Finished);
                 return;
             }
-            _rSize = _ns.Read(_rbytes, 0, _rbytes.Length);
-            if (_rSize > 0)
+            try
             {
-
-                _fs.Write(_rbytes, 0, _rSize);
-                // 计算速率
-                var ms = _stopWatch.ElapsedMilliseconds;
-                offsetSize += _rSize;
-                if (ms > 200)  
+                _rSize = _ns.Read(_rbytes, 0, _rbytes.Length);
+                if (_rSize > 0)
                 {
-                    downloadSpeed = offsetSize == 0 ? 0 : offsetSize / (double)ms;
-                    _stopWatch.Restart();
-                    offsetSize = 0;
+
+                    _fs.Write(_rbytes, 0, _rSize);
+                    // 计算速率
+                    var ms = _stopWatch.ElapsedMilliseconds;
+                    offsetSize += _rSize;
+                    if (ms > 200)
+                    {
+                        downloadSpeed = offsetSize == 0 ? 0 : offsetSize / (double)ms;
+                        _stopWatch.Restart();
+                        offsetSize = 0;
+                    }
+                    //Console.WriteLine($"{task.name}分片{index}下载中 [{curSize}/{size}] {downloadSpeed} {_rSize}");
+                    onDownloadProgress?.Invoke(this, _rSize);
                 }
-                //Console.WriteLine($"{task.name}分片{index}下载中 [{curSize}/{size}] {downloadSpeed} {_rSize}");
-                onDownloadProgress?.Invoke(this,_rSize);
             }
-            
+            catch (Exception e)
+            {
+                OnError(this, $"Chunk Download Error:{e.Message}");
+            }
         }
         public void OnError(object obj,string message)
         {
